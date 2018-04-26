@@ -11,6 +11,139 @@ Classes:
 
 
 """
+class ORF:
+    """
+    Class Open Reading Frame (ORF) is a region of DNA with no stop codons (TAG,TAA,TGA).
+    Potential genes are present in this region. There are 6 coding frames (3 on top strand and 3 on the bottom strand).
+    There are also two boundry conditions where start codons have no stops at the end and where stop codons have no start codons before them.
+
+    methods:
+     __init__(self,minGene,start,longestGene):initializes the required lists and objects for the rest of the methods.
+     bottomSequence(seq): makes a complement-reverse strand from the given sequence
+     ORFfinder(self,seq): itirates 3 base at a time in all 6 frames, keeps track of starts and stops.
+    """
+    def __init__ (self, longestGene = True, start = ['ATG'], minGene = 100):
+        """
+        Initializes longestgene, start, and minGene.
+        initializes 2 list of lists for start and stop codons.
+        a list of list for the final ORFs from all 6 frames
+        
+        """
+        self.longestGene = longestGene 
+        self.startCodon = start
+        self.minGene = minGene
+        self.stopCodon = '(TAG)|(TAA)|(TGA)' #defining the stop codons
+        self.startORF = [[0],[0],[0]]        #3 empty lists in a list to keep track of starts [frame, startposition, endposition] at 0
+        self.startORF2 = [[0], [0], [0]]     #3 zeroed lists to keep track of starts in bottom strand
+        self.stopORF = [[], [], []]          #3 empty lists in a list to keep track of stops [frame, startposition, endposition]
+        self.stopORF2 = [[],[],[]]           # 3 empty lists to keep track of stop codons in the bottom strand
+        self.ORFs = [[], [], [], [], [], []] #Each list is a frame, 0,1,2,3,4,5
+        
+    def bottomSequence (seq):
+        """
+        One way to deal with the bottom strand is to get the complement of the top
+        strand and reverse it (so it goes from 3' to 5') and then deal with it like we do
+        with the top one, and that's what bottomSequence() function does!
+        
+        """
+        #making a complement sequence from the original sequence by
+        #replacing the As with Ts, Gs with C's and vice-versa
+        #note: replacing with lower-case letter to address the potential re-evaluation 
+        comp = seq.replace('A', 't').replace('T', 'a').replace('G', 'c').replace('C', 'g')   
+        capitalSeq = comp.upper() #Uppercase all nucleotides
+        bottomSeq = capitalSeq[::-1] #reversing the sequence, so we'll have 0,1,2 frames not -1,-2,-3
+        
+        return bottomSeq
+    def ORFfinder (self, seq):
+        """
+      the main program that handles 3 base at a time in 3 top frames and 3 bottom ones.
+      keeps track of starts and stops
+      
+        """
+    ###TOP STRAND####
+        #for a base in range of the len of the sequence
+        for p in range(0, len(seq)):
+            codon = seq[p:p+3]          #codon = 3base at a time
+            frame = p %3                #frame = remainder when base is divided by 3, frame = 0,1,2
+            
+            #if the the codon is a start codon
+            if codon in self.startCodon:
+                if p ==0:               # if the start codon is at position zero
+                    continue            #do nothing, already zeroed the list in __init__
+                elif p !=0:             # if the start codon is not at position zero, 
+                    self.startORF[frame].append(p) #record the position of the start codon
+                    
+            #if the codon is a stop codon
+            elif codon in self.stopCodon:
+                endPosition = p + 3                         #end position of the stop codon
+                self.stopORF[frame].append(endPosition) #record the position of the stop
+                
+                #Length of the potential gene= stopcodon position(endPosition)-start of the startCodon (startPosition)
+                #if length of the startORF is bigger than 0, thus there is Start codon in the middle of the ORF
+                if len(self.startORF[frame]) > 0:
+                    startPosition = self.startORF[frame][0] + 1  #start position, +1 b/c it starts with 0  
+                    length = endPosition - startPosition + 1       #get the length
+                    
+                    #When length is bigger or equal to desired minimum gene
+                    if length >= self.minGene:
+                        orfFrame = frame + 1 #frame starts with 0, hence +1
+                        orf = [orfFrame, startPosition, endPosition, length] #the Data So far
+                        self.ORFs[frame].append(orf) #adding the data to each frame in ORFs list
+
+                    #Empty the lists
+                    self.startORF[frame] = []
+                    self.stopORF[frame] = []
+                    
+                #if the length of the starts are 0, hence there is no start codon in the middle of the ORF
+                elif len(self.startORF[frame]) == 0:
+                    self.stopORF[frame] = []
+
+    ###BOTTOM STRAND###
+        #bottom strand is the sequence ran through the bottomSequence() function
+        bottomSeq = ORF.bottomSequence(seq)
+        #for a base in range of the len of the sequence
+        for p in range (0,len(bottomSeq)):
+            codon = bottomSeq[p:p+3]        #a codon is a 3base character
+            #frame of the bottom strand in -1,-2,and -3 (easier to deal with at the end
+            frameHy = p %3                  #frames 0,1,2 (technically 1,2,3)
+            frame = -(frameHy + 1)          #making them -1,-2,3
+
+            if codon in self.startCodon:
+                if p ==0:               # if the start codon is at position zero
+                    continue            #do nothing, already zeroed the list in __init__
+                elif p !=0:             # if the start codon is not at position zero, 
+                    self.startORF[frame].append(p) #record the position of the start codon
+                    
+            #if the codon is a stop codon
+            elif codon in self.stopCodon:
+                endPosition = p + 2                          #end position of the stop codon
+                self.stopORF[frame].append(endPosition) #record the position of the stop
+                
+                #Length of the potential gene= stopcodon position(endPosition)-start of the startCodon (startPosition)
+                #if length of the startORF is bigger than 0, thus there is Start codon in the middle of the ORF
+                if len(self.startORF[frame]) > 0:
+                    startPosition = self.startORF[frame][0] #start position, +1 b/c it starts with 0  
+                    length = endPosition - startPosition +1       #get the length
+                    
+                    #When length is bigger or equal to desired minimum gene
+                    if length >= self.minGene:
+                        #start and stop in reverse strand would be -the length of the sequence
+                        startP = len(bottomSeq) - startPosition
+                        endP = len(bottomSeq) - endPosition
+                        
+                        orf = [frame, startP, endP, length] #the Data So far
+                        self.ORFs[frame].append(orf) #adding the data to each frame in ORFs list
+
+                    #Empty the lists
+                    self.startORF[frame] = []
+                    self.stopORF[frame] = []
+                    
+                #if the length of the starts are 0, hence there is no start codon in the middle of the ORF
+                elif len(self.startORF[frame]) == 0:
+                    self.stopORF[frame] = []
+
+        return self.ORFs #return the list of the lists [0] = frame0, [1] = frame 1 and so on...
+               
 class NucParams:
     """
     Class to provide counts and composition of a sequence (DNA,RNA, or a protein)
