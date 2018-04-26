@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # Name: Dara Rouholiman (drouholi)
 # Group Members: None
-"""
+'''
 findORFs finds potential genes in a genome. It is an equivalent tool as the
 ORF finder at NCBI database. The program accepts DNA sequences as an input
 from any FASTA file and outputs the results in a text file.
@@ -19,60 +19,7 @@ tass2 NODE_159_length_75728_cov_97.549133
 -2  2968.. 4872  1905
 +1 64093..65952  1860
 -3    30.. 1694  1665
-.
-.
-.
- 
-###Pseudocodes###
-
-    
-class ORF(): -part of sequenceAnalyzer.py Module
-
-    def __init__():
-    #keeping track of start codons, 0=frame, 1=start position, 2=end position
-    startCodon = [[], [], []]
-    #keeping track of Stop codons, 0=frame, 1=start position, 2=end position
-    stopCodons = [[], [], []]
-    
-    def main():
-    #itirate 3 base at a time, start in frame 0
-    if a start codon:
-       startCodon.append
-    if a stop codon:
-       stopCodon.append
-    else:
-       pass
-    #after each frame empty the list
-    codonList[frame] = []
-
-
-class CommandLine(): #Scaffold is written by David Bernick 
-
-    def __init__():
-    #define the right description, options and names
-    #get rid of the extras
-    
-    def main():
-    #get the sequence by FastAreader
-    import sequenceAnalysis as x
-    tass = x.FastAreader('filename')
-    #get the header from FastAreader and write all the print statements on a .txt file
-    with open(output, 'w') as y:
-        for head, seq in tass.readFasta():
-            print (head, file = y)
-            ORFs = x.ORFfinder()
-            ORFs.sort (key=lambda length:length[3], reverse=True)
-            #define/extract frame, start, stop, length
-            frame = list[0]
-            start = list[1]
-            .
-            .
-            .
-            print (.... .format(frame,start,stop,length), file =y)
-
-
-"""     
-
+'''
 
 ########################################################################
 # CommandLine
