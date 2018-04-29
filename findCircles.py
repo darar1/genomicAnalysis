@@ -25,30 +25,6 @@ NODE_198000_length_53530_cov_17.185019 3
 NODE_504247_length_13693_cov_12.981158 2
 NODE_481727_length_12120_cov_37.470791 2
 
-
-####Pseudocode#####
--get readPSL to yield Query(ReadPair) and Target('node'/contig), and strand(+/-) instead of the whole line!
--Use the Pairwise Group Collect as the template for readPSLpairs()
-def readPSLpairs():
- thisGroup = None
- thisGroupList = [[],[],[]]
-
- for ReadPair, node, strand in thisStream:
-     if ReadPair is not thisGroup:
-        for leftContig, leftStrand in thisGroupList[1]:
-           for rightContig, rightStrand in thisGroupList[2]:
-               if leftContig is/== rightContig:
-                 if leftStrand in not /!= rightStrand:
-                    yield rightContig or leftContig #samething, they're equal
-               
-         Pairwise(thisGroupList)
-         thisGroup = name
-         thisGroupList = [[],[],[]]
-
-     thisGroupList[strand].append([ReadPair, node,strand]) 
- 
-
- 
 """
 import sys
 class PSLreader :
